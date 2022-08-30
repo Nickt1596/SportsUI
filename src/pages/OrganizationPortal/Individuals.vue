@@ -1,8 +1,8 @@
 <template>
   <q-page>
     <q-card flat>
-      <PageHeader title="Members" />
-      <HeaderTabs @update-selected="updateSelected" />
+      <PageHeader title="Individuals" />
+      <HeaderTabs :tabs="tabs" :selected="selected" @update-selected="updateSelected" />
       <q-separator />
     </q-card>
     <div class="q-pa-lg">
@@ -26,18 +26,33 @@ import { ref } from "vue";
 import { useOrganizationStore } from "stores/organization";
 import { storeToRefs } from "pinia/dist/pinia";
 import PageHeader from "components/OrganizationPortal/Shared/PageHeader.vue";
-import HeaderTabs from "components/OrganizationPortal/Members/HeaderTabs.vue";
-import OrganizationStaffPanel from "components/OrganizationPortal/Members/OrganizationStaffPanel.vue";
-import PeoplePanel from "components/OrganizationPortal/Members/PeoplePanel.vue";
-import LeagueStaffPanel from "components/OrganizationPortal/Members/LeagueStaffPanel.vue";
+import HeaderTabs from "components/OrganizationPortal/Shared/HeaderTabs.vue";
+import OrganizationStaffPanel from "components/OrganizationPortal/Individuals/OrganizationStaffPanel.vue";
+import PeoplePanel from "components/OrganizationPortal/Individuals/PeoplePanel.vue";
+import LeagueStaffPanel from "components/OrganizationPortal/Individuals/LeagueStaffPanel.vue";
 
 export default {
-  name: "OrganizationMembers",
+  name: "OrganizationIndividuals",
   components: { LeagueStaffPanel, PeoplePanel, OrganizationStaffPanel, HeaderTabs, PageHeader },
   setup() {
     const selected = ref("people");
     const organizationStore = useOrganizationStore();
     const { people, organizationStaff, leagueStaff } = storeToRefs(organizationStore);
+
+    const tabs = [
+      {
+        name: 'people',
+        label: 'People'
+      },
+      {
+        name: 'org_staff',
+        label: 'Organization Staff'
+      },
+      {
+        name: 'league_staff',
+        label: 'League Staff'
+      },
+    ]
 
     const updateSelected = (value) => {
       selected.value=value;
@@ -47,7 +62,8 @@ export default {
       people,
       organizationStaff,
       leagueStaff,
-      updateSelected
+      updateSelected,
+      tabs
     };
   },
 };

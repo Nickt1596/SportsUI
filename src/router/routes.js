@@ -87,9 +87,14 @@ const routes = [
         component: () => import('pages/OrganizationPortal/Financials.vue')
       },
       {
-        path: 'members',
-        name: 'OrganizationMembers',
-        component: () => import('pages/OrganizationPortal/Members.vue')
+        path: 'individuals',
+        name: 'OrganizationIndividuals',
+        component: () => import('pages/OrganizationPortal/Individuals.vue')
+      },
+      {
+        path: 'invites',
+        name: 'OrganizationInvites',
+        component: () => import('pages/OrganizationPortal/Invites.vue')
       },
       {
         path: 'promotion',

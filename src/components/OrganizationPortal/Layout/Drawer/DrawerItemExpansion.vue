@@ -14,6 +14,7 @@
       active-class="bg-grey-8"
       v-for="item in items"
       :key="item.id"
+      :to=getRoute(item)
     >
       <q-item-section>{{ item.name }}</q-item-section>
     </q-item>
@@ -28,7 +29,17 @@ export default {
     items: [],
   },
   setup() {
-    return {};
+    function getRoute (item) {
+      if (item.route){
+        return item.route;
+      }
+      else {
+        return null
+      }
+    }
+    return {
+      getRoute
+    };
   },
 };
 </script>

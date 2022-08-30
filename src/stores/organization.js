@@ -2,6 +2,7 @@ import { defineStore } from 'pinia'
 import { fetchWrapper } from "src/helpers/fetch-wrapper";
 import { useUsersStore } from "stores/users";
 import { storeToRefs } from "pinia/dist/pinia";
+import { useAlertStore } from "stores/alert";
 
 export const useOrganizationStore = defineStore('organization', {
   state: () => ({
@@ -46,30 +47,42 @@ export const useOrganizationStore = defineStore('organization', {
     async addPerson(values){
       values.organization_id = this.currentOrganization.id
       values.country = ''
+      const alertStore = useAlertStore();
       try {
         this.addedPerson = await fetchWrapper.post(`http://127.0.0.1:8000/api/v2/directory/add-person/`, values);
         await this.getPeople()
-      } catch (error) {
-        this.addedPerson = { error };
+        const { success } = alertStore;
+        success("Person Added successfully");
+      } catch (e) {
+        const { error } = alertStore;
+        error(e);
       }
     },
     async addOrganizationStaff(values){
       values.organization_id = this.currentOrganization.id
       values.country = ''
+      const alertStore = useAlertStore();
       try {
         this.addedOrgStaff = await fetchWrapper.post(`http://127.0.0.1:8000/api/v2/directory/add-organization-staff/`, values);
         await this.getOrganizationStaff()
-      } catch (error) {
-        this.addedOrgStaff = { error };
+        const { success } = alertStore;
+        success("Person Added successfully");
+      } catch (e) {
+        const { error } = alertStore;
+        error(e);
       }
     },
     async addLeagueStaff(values){
       values.country = ''
+      const alertStore = useAlertStore();
       try {
         this.addedLeagueStaff = await fetchWrapper.post(`http://127.0.0.1:8000/api/v2/directory/add-league-staff/`, values);
         await this.getLeagueStaff()
-      } catch (error) {
-        this.addedLeagueStaff = { error };
+        const { success } = alertStore;
+        success("Person Added successfully");
+      } catch (e) {
+        const { error } = alertStore;
+        error(e);
       }
     },
     async getInviteDetails(id, type){

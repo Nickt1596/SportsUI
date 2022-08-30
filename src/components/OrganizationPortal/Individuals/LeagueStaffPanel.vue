@@ -2,9 +2,9 @@
   <q-tab-panel :name="name">
     <q-card>
       <q-table
-        v-if="people.length > 0"
-        title="People"
-        :rows="people"
+        v-if="leagueStaff.length > 0"
+        title="League Staff"
+        :rows="leagueStaff"
         :columns="columns"
         row-key="id"
         selection="multiple"
@@ -20,7 +20,7 @@
             outlined
             dense
             debounce="300"
-            label="Filter People"
+            label="Filter League Staff"
             color="primary"
             v-model="filter"
           >
@@ -33,8 +33,8 @@
             color="grey-3"
             text-color="black"
             :disable="loading"
-            label="Add Person"
-            @click="addPerson"
+            label="Add League Staff"
+            @click="addLeagueStaff"
           />
           <q-btn
             class="q-ml-sm"
@@ -77,12 +77,15 @@
       </q-table>
     </q-card>
   </q-tab-panel>
+  <AddLeagueStaffDialog v-model="openDialog" @on-submit="onSubmit" />
 </template>
 
 <script>
 import { ref } from "vue";
 import { useQuasar } from "quasar";
-import AddPersonDialog from "components/OrganizationPortal/Members/AddPersonDialog.vue";
+import { useOrganizationStore } from "stores/organization";
+import { useAlertStore } from "stores/alert";
+import AddLeagueStaffDialog from "components/OrganizationPortal/Individuals/AddLeagueStaffDialog.vue";
 
 const columns = [
   {
@@ -116,32 +119,53 @@ const columns = [
     sortable: true,
   },
 ];
-
 export default {
-  name: "PeoplePanel",
+  name: 'LeagueStaffPanel',
+  components: { AddLeagueStaffDialog },
   props: {
     name: String,
-    people: [],
+    leagueStaff: [],
   },
   setup() {
     const filter = ref("");
     const selectedRows = ref([]);
     const $q = useQuasar()
+    const openDialog = ref(false);
 
-    function addPerson () {
-      $q.dialog({
-        component: AddPersonDialog
-      }).onOk(() => {
-        console.log('OK')
-      })
+    function addLeagueStaff () {
+      openDialog.value = true
+    }
+
+    async function onSubmit (values) {
+      $q.loading.show()
+      Object.keys(values).forEach(function (key) {
+        if (values[key] === undefined) {
+          values[key] = "";
+        }
+      });
+      const organizationStore = useOrganizationStore();
+      const alertStore = useAlertStore();
+      const { addLeagueStaff } = organizationStore;
+      await addLeagueStaff(values);
+      const { alert, clear } = alertStore;
+      if (alert !== null) {
+        if (alert.type === 'positive') {
+          openDialog.value = false;
+        }
+        $q.notify(alert);
+        clear();
+      }
+      $q.loading.hide()
     }
 
     return {
       columns,
       filter,
       selectedRows,
-      addPerson,
+      addLeagueStaff,
+      openDialog,
+      onSubmit
     };
   },
-};
+}
 </script>

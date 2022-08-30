@@ -10,7 +10,7 @@
         <q-separator />
         <Form @submit="onSubmit" :validation-schema="schema">
           <q-card-section style="max-height: 50vh" class="scroll">
-            <Field name="email" v-slot="{ errorMessage, value, field }" :value=sampleEmail>
+            <Field name="email" v-slot="{ errorMessage, value, field }" >
               <q-input
                 stack-label
                 filled
@@ -129,7 +129,7 @@
 
           <q-card-actions align="right" class="q-mr-lg">
             <q-btn flat label="Cancel" color="primary" v-close-popup />
-            <q-btn v-close-popup="closeDialog === true"  unelevated label="Add" color="primary" type="submit" />
+            <q-btn unelevated label="Add" color="primary" type="submit" />
           </q-card-actions>
         </Form>
       </q-card>
@@ -140,16 +140,12 @@
 <script>
 import { Form, Field } from "vee-validate";
 import * as Yup from "yup";
-import { useOrganizationStore } from "stores/organization";
-import { ref } from "vue";
-import { useAlertStore } from "stores/alert";
-import { useQuasar } from "quasar";
 
 export default {
   name: "AddPersonDialog",
   // eslint-disable-next-line vue/no-reserved-component-names
   components: { Form, Field },
-  setup() {
+  setup (props, context) {
     const schema = Yup.object().shape({
       email: Yup.string().required("Email is Required"),
       first_name: Yup.string().required("First Name is Required"),
@@ -162,42 +158,15 @@ export default {
       phone_number: Yup.string(),
     });
 
-    const $q = useQuasar();
 
-    const closeDialog = ref(false)
-
-    const sampleEmail = ref('Init@email.com')
-
-    async function onSubmit(values) {
-      Object.keys(values).forEach(function (key) {
-        if (values[key] === undefined) {
-          values[key] = "";
-        }
-      });
-      const organizationStore = useOrganizationStore();
-      const alertStore = useAlertStore();
-      const { success, error } = alertStore;
-      const { addPerson } = organizationStore;
-      try{
-        await addPerson(values);
-        success("Person Added successfully");
-        closeDialog.value = true;
-      } catch (e) {
-        error(e);
-      }
-      const { alert, clear } = alertStore;
-      if (alert !== null) {
-        $q.notify(alert);
-        clear();
-      }
-    }
+    const onSubmit = (event) => {
+      context.emit("onSubmit", event);
+    };
 
     return {
-      schema,
-      closeDialog,
       onSubmit,
-      sampleEmail
-    };
-  },
+      schema
+    }
+  }
 };
 </script>

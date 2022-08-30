@@ -34,7 +34,7 @@
             text-color="black"
             :disable="loading"
             label="Add Organization Staff"
-            @click="addOrganizationStaff"
+            @click="addOrgStaff"
           />
           <q-btn
             class="q-ml-sm"
@@ -77,12 +77,15 @@
       </q-table>
     </q-card>
   </q-tab-panel>
+  <AddOrganizationStaffDialog v-model="openDialog" @on-submit="onSubmit" />
 </template>
 
 <script>
 import { ref } from "vue";
 import { useQuasar } from "quasar";
-import AddOrganizationStaffDialog from "components/OrganizationPortal/Members/AddOrganizationStaffDialog.vue";
+import { useOrganizationStore } from "stores/organization";
+import { useAlertStore } from "stores/alert";
+import AddOrganizationStaffDialog from "components/OrganizationPortal/Individuals/AddOrganizationStaffDialog.vue";
 
 const columns = [
   {
@@ -119,6 +122,7 @@ const columns = [
 
 export default {
   name: 'OrganizationStaffPanel',
+  components: { AddOrganizationStaffDialog },
   props: {
     name: String,
     organizationStaff: [],
@@ -127,17 +131,41 @@ export default {
     const filter = ref("");
     const selectedRows = ref([]);
     const $q = useQuasar()
+    const openDialog = ref(false);
 
-    function addOrganizationStaff () {
-      $q.dialog({
-        component: AddOrganizationStaffDialog
-      })
+    function addOrgStaff () {
+      openDialog.value = true
     }
+
+    async function onSubmit (values) {
+      $q.loading.show()
+      Object.keys(values).forEach(function (key) {
+        if (values[key] === undefined) {
+          values[key] = "";
+        }
+      });
+      const organizationStore = useOrganizationStore();
+      const alertStore = useAlertStore();
+      const { addOrganizationStaff } = organizationStore;
+      await addOrganizationStaff(values);
+      const { alert, clear } = alertStore;
+      if (alert !== null) {
+        if (alert.type === 'positive') {
+          openDialog.value = false;
+        }
+        $q.notify(alert);
+        clear();
+      }
+      $q.loading.hide()
+    }
+
     return {
       columns,
       filter,
       selectedRows,
-      addOrganizationStaff,
+      addOrgStaff,
+      openDialog,
+      onSubmit
     }
   }
 }

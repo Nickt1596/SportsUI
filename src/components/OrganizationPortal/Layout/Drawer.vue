@@ -14,7 +14,10 @@
           v-if="organizations.length > 0"
         />
         <DrawerItem :route="{ name: 'OrganizationHome' }" name="Home" />
-        <DrawerItem :route="{ name: 'OrganizationMembers' }" name="Members" />
+        <DrawerItemExpansion
+          main-label="Members"
+          :items="individualItems"
+        />
         <DrawerItemExpansion
           main-label="Leagues"
           :items="currentOrganization.leagues"
@@ -70,6 +73,17 @@ export default {
       return !(route.name === "season");
     });
 
+    const individualItems = [
+      {
+        name: 'Individuals',
+        route: { name: 'OrganizationIndividuals' }
+      },
+      {
+        name: 'Invites',
+        route: { name: 'OrganizationInvites' }
+      }
+    ]
+
     const organizationStore = useOrganizationStore();
     const { currentOrganization } = storeToRefs(organizationStore);
     const staffStore = useStaffStore();
@@ -80,6 +94,7 @@ export default {
       organizations,
       leagues,
       currentOrganization,
+      individualItems
     };
   },
 };

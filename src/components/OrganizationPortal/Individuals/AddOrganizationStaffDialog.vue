@@ -10,23 +10,6 @@
         <q-separator />
         <Form @submit="onSubmit" :validation-schema="schema">
           <q-card-section style="max-height: 50vh" class="scroll">
-            <Field name="league_id" v-slot="{ errorMessage, value, field }">
-              <q-select
-                filled
-                class="q-mb-sm"
-                label="League"
-                :options="leagues"
-                option-label="name"
-                option-value="id"
-                emit-value
-                map-options
-                :model-value="value"
-                v-bind="field"
-                :error-message="errorMessage"
-                :error="!!errorMessage"
-              >
-              </q-select>
-            </Field>
             <Field name="email" v-slot="{ errorMessage, value, field }">
               <q-input
                 stack-label
@@ -156,17 +139,13 @@
 <script>
 import { Form, Field } from "vee-validate";
 import * as Yup from "yup";
-import { useOrganizationStore } from "stores/organization";
-import { ref } from "vue";
-import { storeToRefs } from "pinia/dist/pinia";
 
 export default {
-  name: "AddLeagueStaffDialog",
+  name: "AddOrganizationStaffDialog",
   // eslint-disable-next-line vue/no-reserved-component-names
   components: { Form, Field },
-  setup() {
+  setup(props, context) {
     const schema = Yup.object().shape({
-      league_id: Yup.string().required("You must select a league"),
       email: Yup.string().required("Email is Required"),
       first_name: Yup.string().required("First Name is Required"),
       last_name: Yup.string().required("Last Name is Required"),
@@ -178,24 +157,14 @@ export default {
       phone_number: Yup.string(),
     });
 
-    const organizationStore = useOrganizationStore();
-    const { currentOrganization } = storeToRefs(organizationStore)
-    const leagues = currentOrganization.value.leagues
 
-    const onSubmit = (values) => {
-      Object.keys(values).forEach(function (key) {
-        if (values[key] === undefined) {
-          values[key] = "";
-        }
-      });
-      const { addLeagueStaff } = organizationStore;
-      addLeagueStaff(values);
+    const onSubmit = (event) => {
+      context.emit("onSubmit", event);
     };
 
     return {
       schema,
       onSubmit,
-      leagues
     };
   },
 };
